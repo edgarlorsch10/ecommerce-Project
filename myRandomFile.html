@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+   <!-- <button id="updateState">Click to change the URL</button>-->
+    <div id="container"></div>
+    <script>
+        /*document.getElementById("updateState").addEventListener("click",()=>{
+            history.pushState({page:"new"},"New Page","/new-url");
+            console.log("URL changed to new-url");
+        })*/
+       const newDiv=document.createElement("div");
+       newDiv.textContent="Click me to change url";
+       newDiv.style.cursor="pointer";
+       newDiv.style.padding="10px";
+       newDiv.style.backgroundColor="#f0f0f0";
+       document.getElementById("container").appendChild(newDiv);
+       //Store the initial state, could be the original  page load
+       history.replaceState({page:"home"},"Home Page","/");
+       newDiv.addEventListener("click",()=>{
+        history.pushState({page:"dynamic-div"},"Dynamic content","/dynamic-div");
+        console.log("URL changed to /dynamic-div");
+       });
+       //listen for a popstate event
+       window.addEventListener("popstate",(e)=>{
+        if(e.state&&e.state.page==="dynamic-div"){
+            //Handle the state when the user navigates back or forward
+            console.log("Navigated back to the dynamic div state");
+            alert("You have navigated back to /dynamic-div");
+        }else if(e.state&&e.state.page==="home"){
+            //If we are back on the initial home state
+            console.log("Navigated back to the home page");
+            alert("You're back on the home state.");
+        } else{
+            console.log("Navigated to a different state.");
+        }
+       })
+       //history.replaceState(), it stores the initial state, this could be the original page reload
+       //history.pushState() , adds a new entry to the history stack, first argument of this function represents the information to store about the newly added entry
+       //In the examples provided above,e.state, refers to the state object associated with a particular history entry when using history.pushState() or history.replaceState()
+
+    //How event.state() works:
+    //When pushState() or replaceState() methods are used, you can associate a state object with the history entry
+    //Later, when the user navigates back or forward, or when history.back() or history.forward() is triggered, the popstate event is fired.
+    //This event contains the state property which contains the state of the object you associated with that history entry
+
+
+
+
+window.addEventListener("load",()=>{
+    alert(document.body.innerHTML);
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </script>
+</body>
+</html>
