@@ -57,7 +57,6 @@ function updatePageUI(){
         break;
     }
     view=movieSection.innerHTML;
-    return view;
   }
 (function initializePageUI(){
  let path=window.location.pathname;
@@ -1338,7 +1337,7 @@ allMovies.forEach((movie,movieIndex)=>{
           alert(`The movie ${movie.id} at index ${movieIndex} has been selected.`);
         });
         movieData=movieSection.innerHTML;
-        console.log(movieData);
+       // console.log(movieData);
       history.pushState(movieData,"","")
       });
   });
