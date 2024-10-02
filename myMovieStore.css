@@ -104,3 +104,13 @@
     color:rgb(255,255,255);
     padding:6px;
   }
+  @media screen and (min-width:750px){
+    #movieSection{
+      padding:10px;
+      width:80%;
+    }
+    #movieSection div{
+      width:75%;
+      padding:6px;
+    }
+  }
