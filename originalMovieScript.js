@@ -1349,8 +1349,7 @@ allMovies.forEach((movie,movieIndex)=>{
       movieSearchResult=availableMovies.some(availableMovie=>availableMovie.test(searchArea.value));
       if(!movieSearchResult&&searchArea.value!=="")alert(`Sorry the movie ${searchArea.value} is currently unavailable`);
     })
-  
     window.addEventListener("popstate",(e)=>{
-      console.log(e.state)
-      updatePageUI();
-    })
+    updatePageUI();
+    let path=window.location.pathname;
+    });
