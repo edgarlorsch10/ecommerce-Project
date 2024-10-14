@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css"> 
+    <link rel="stylesheet" href="myMovieStore.css"/>
+    <title>eMovie Store</title>
+</head>
+<body>
+    <main>
+        <h1>E-MOVIE STORE</h1>
+        <form id="signUpForm" novalidate role="form">
+            <div class="form-group">
+            <label for="username">Enter Your Name Here:</label>
+            <input type="text" id="username" name="username"/>
+            <p id="userNameError"></p>
+            </div>
+            <div class="form-group">
+            <label for="userTelephone">Enter Your Telephone Number Here:</label>
+            <input type="number" id="userTelephone" name="userTelephone"/>
+            <p id="userTelephoneError"></p>
+            </div>
+            <label for="userEmailAddress">Enter Your Email Address Here:</label>
+            <input type="email" id="userEmailAddress" name="userEmailAddress">
+            <p id="emailAddressError"></p>
+           <label for="userpassword">Enter Your Password:</label>
+           <input type="password" id="userpassword">
+           <p id="userpasswordError"></p>
+            <button id="submitSignUpDetails" type="submit">Sign Up</button>
+        </form> ;
+    </main>
+    <script src="signUpPage.js" type="module" async defer></script>
+</body>
+</html>

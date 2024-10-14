@@ -18,6 +18,7 @@ let firstSection=document.querySelector("#firstSection");
 let unalteredPage=[];
 let formIsvalid;//This will assist me in checking whether the form is ready for submission
 let registeredUsers=localStorage.getItem("accountUsers")?JSON.parse(localStorage.getItem("accountUsers")):[];
+let copyOfRegisteredUsers=[];//I've created this array to hold a copy of the users who have just registered or signed up, just incase data gets lost in one reference array, it can act as backup
 let userAccount={};
 let submittedDetailsAccount={}; //I've created this object with a purpose to store the email and password that a user will submit while logging in,I'll compare it to the original details submitted during sign up to confirm whether its the same user trying to access their account
 let digitPattern=/[0-9]/;
@@ -33,6 +34,7 @@ let displayActionView=()=>myActionMovies.innerHTML;
 let displayAdventureView=()=>myAdventureMovies.innerHTML;
 let displayComedyView=()=>myComedyMovies.innerHTML;
 let displayHorrorView=()=>myHorrorMovies.innerHTML;
+let userAccountConfirmation;//Whenever a user performs an add to cart operation, its value will be instantiated
 //The following  function will assist me change the look of the <section> element depending on which link is clicked on
 function updatePageUI(){
     let path=window.location.pathname;//I've initialised the path variable which will refer to the location of a particular url
@@ -65,7 +67,6 @@ function updatePageUI(){
 let allIcons=document.querySelectorAll("i");
 allIcons.forEach((icon,index)=>{
   icon.addEventListener("click",(e)=>{
-    console.log(`${icon.id}`);
     if(icon.id==="personIcon"&&registeredUsers.length===0){
       movieSection.innerHTML=`
       <form id="signUpForm" novalidate>
@@ -93,7 +94,6 @@ allIcons.forEach((icon,index)=>{
             let userpassword=document.querySelector("#userpassword");
             let userpasswordError=document.querySelector("#userpasswordError");
             let submitSignUpDetails=document.querySelector("#submitSignUpDetails");
-
             submitSignUpDetails.addEventListener("click",(e)=>{
               e.preventDefault();
               userNameError.textContent="";
@@ -119,13 +119,14 @@ allIcons.forEach((icon,index)=>{
               userAccount.clientEmailaddress=userEmailAddress.value;
               registeredUsers.push(userAccount);
               localStorage.setItem("accountUsers",JSON.stringify(registeredUsers));
+              copyOfRegisteredUsers.push(userAccount);
               alert(`Hello ${username.value},your data has been successfully submitted to the databse.`);
               signUpForm.reset();
              }
              });
     }
     if(icon.id==="personIcon"&&registeredUsers.length>0){
-   movieSection.innerHTML=`  <form id="loginForm" novalidate>
+   movieSection.innerHTML=`  <form id="loginForm" novalidate role="form">
                         <label for="loginEmail">Enter Your Email Address Here:
                         <input type="email" id="loginEmail" name="loginEmail"/>
                         </label>
@@ -1334,11 +1335,19 @@ allMovies.forEach((movie,movieIndex)=>{
         };
         movieSection.append(addToCartButton);
         addToCartButton.addEventListener("click",(e)=>{
-          alert(`The movie ${movie.id} at index ${movieIndex} has been selected.`);
+         // alert(`The movie ${movie.id} at index ${movieIndex} has been selected.`);
+         userAccountConfirmation=prompt("Hi there, before adding a movie to the cart confirm if you have a registered account to do so, answer yes or no in the space below.");
+         if(userAccountConfirmation=="yes"||userAccountConfirmation=="yeah"||userAccountConfirmation=="yea"||userAccountConfirmation=="Yes"||userAccountConfirmation=="Yeah"||userAccountConfirmation=="Yea"){
+          alert("Great, now just provide your login details.");
+          location.href="loginPage.html";
+        }
+          else {
+          alert("Kindly create an account in order to be able to add products to your cart.");
+          location.href="signUpPage.html";
+         }
         });
         movieData=movieSection.innerHTML;
-       // console.log(movieData);
-      history.pushState(movieData,"","")
+      history.pushState(movieData,"","");
       });
   });
     let searchArea=document.querySelector("#searchArea");
@@ -1353,3 +1362,7 @@ allMovies.forEach((movie,movieIndex)=>{
     updatePageUI();
     let path=window.location.pathname;
     });
+console.log(registeredUsers);
+console.log(copyOfRegisteredUsers);
+
+export let cars=["Audi"];
