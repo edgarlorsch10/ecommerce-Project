@@ -34,6 +34,7 @@ let displayActionView=()=>myActionMovies.innerHTML;
 let displayAdventureView=()=>myAdventureMovies.innerHTML;
 let displayComedyView=()=>myComedyMovies.innerHTML;
 let displayHorrorView=()=>myHorrorMovies.innerHTML;
+let clientAccountPresent;//This will be especially helpful when the client clicks on the person icon and the login page is displayed, it will return true if the user's details exist
 let userAccountConfirmation;//Whenever a user performs an add to cart operation, its value will be instantiated
 //The following  function will assist me change the look of the <section> element depending on which link is clicked on
 function updatePageUI(){
@@ -170,7 +171,10 @@ allIcons.forEach((icon,index)=>{
               if(emailNotNull&&emailValid&&loginEmailAvailable===false)loginEmailError.textContent="Email not recognised.";   
               if(emailNotNull&&emailValid&&loginEmailAvailable&&passwordContainsDigit&&passwordContainsLowercase&&passwordContainsUppercase&&passwordNotGreaterThanTwelveCharacters&&passwordNotLessThanSixCharacters&&passwordNotNull&&loginPasswordAvailable===false)alert(`HI, your email adress ${loginEmail.value} is recognised, however, the password ${loginpassword.value} does not seem to exist for this account.`);
               if(passwordNotNull&&passwordContainsDigit&&passwordContainsLowercase&&passwordContainsUppercase&&passwordNotGreaterThanTwelveCharacters&&passwordNotLessThanSixCharacters&&loginPasswordAvailable&&emailNotNull&&emailValid&&!loginEmailAvailable)alert(`Hi there, the password you have submitted is recognised by our system, however, we can't seem to trace the email address you've provided.`);
-              console.log(submittedDetailsAccount);
+              clientAccountPresent=registeredUsers.some((certainUser)=>{
+                return certainUser.clientEmailaddress===submittedDetailsAccount.clientEmailaddress&&certainUser.clientPassword===submittedDetailsAccount.clientPassword;
+              });
+              if(clientAccountPresent)alert(`Great, all login details are correct, welcome.`);
             })
     };if(icon.id==="houseIcon")movieSection.innerHTML=unalteredPage;
     if(icon.id==="cartIcon")movieSection.innerHTML=`
@@ -1364,5 +1368,3 @@ allMovies.forEach((movie,movieIndex)=>{
     });
 console.log(registeredUsers);
 console.log(copyOfRegisteredUsers);
-
-export let cars=["Audi"];
