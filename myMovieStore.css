@@ -83,7 +83,6 @@
   form{
     padding:18px;
     margin:10px;
-/*display:none;*/
    }
   input{
     padding:8px;
@@ -104,13 +103,21 @@
     color:rgb(255,255,255);
     padding:6px;
   }
-  @media screen and (min-width:750px){
+  .row{
+    padding: 15px;
+  }
+ @media screen and (min-width:650px){
     #movieSection{
       padding:10px;
-      width:80%;
-    }
-    #movieSection div{
       width:75%;
-      padding:6px;
+    }
+    .row div{
+      margin:10px;
+      width:40%;
+      font-size: 10px;
+      
+    }
+    a{
+      font-size:30px;
     }
   }
