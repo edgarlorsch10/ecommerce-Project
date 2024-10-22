@@ -22,6 +22,8 @@ let copyOfRegisteredUsers=[];//I've created this array to hold a copy of the use
 copyOfRegisteredUsers=registeredUsers;
 let userAccount={};
 let submittedDetailsAccount={}; //I've created this object with a purpose to store the email and password that a user will submit while logging in,I'll compare it to the original details submitted during sign up to confirm whether its the same user trying to access their account
+//let affectedClients=localStorage.getItem("affectedUsers")?JSON.parse(localStorage.getItem("affectedUsers")):[];//Whenevr a user forgets their email address, I will store the details here, together with the security question they provided when they said that the password has been forgotten
+let affectedUserInformation={};//If it is indeed true that this user's email exists, I will ensure this object has two properties with the values of the affected client's email and the answer to their security question
 let digitPattern=/[0-9]/;
 let lowercaseLetterPattern=/[a-z]/;
 let uppercaseLetterPattern=/[A-Z]/;
@@ -133,6 +135,10 @@ function createSignUpForm(){
         }
          });
 }
+let forgotPasswordButton=document.createElement("button");
+forgotPasswordButton.textContent="Forgot Password";
+let forgotPasswordClickCount=0;
+let loginButtonClickCount=0;
 function createLoginForm(){
   movieSection.innerHTML=`  <form id="loginForm" novalidate role="form">
   <label for="loginEmail">Enter Your Email Address Here:
@@ -140,7 +146,7 @@ function createLoginForm(){
   </label>
   <p id="loginEmailError"></p>
   <label for="loginpassword">Enter Your Password:</label>
-  <input type="password" id="loginpassword" name="loginpassword">
+  <input type="password" id="loginpassword" name="loginpassword" autocomplete="current-password">
   <p id="loginpasswordError"></p>
   <button id="loginButton" type="submit">Login</button>
 </form> `
@@ -182,14 +188,72 @@ if(passwordNotNull&&passwordContainsDigit&&passwordContainsLowercase&&passwordCo
   alert(`KIndly create an account to access our services.`);
   createSignUpForm();
 }
-  clientAccountPresent=registeredUsers.some((certainUser)=>{
+clientAccountPresent=registeredUsers.some((certainUser)=>{
 return certainUser.clientEmailaddress===submittedDetailsAccount.clientEmailaddress&&certainUser.clientPassword===submittedDetailsAccount.clientPassword;
 });
+if(passwordContainsDigit&&passwordContainsLowercase&&passwordContainsUppercase&&passwordNotGreaterThanTwelveCharacters&&passwordNotLessThanSixCharacters&&passwordNotNull&&loginPasswordAvailable===false&&emailNotNull&&emailValid&&loginEmailAvailable===false){
+  alert(`Hi there, we couldn't recognise any of your login details,create an account to sign up.`);
+  setTimeout(()=>{
+    createSignUpForm();
+  },800); 
+}
 if(clientAccountPresent)alert(`Great, all login details are correct, welcome.`);
 })
+movieSection.append(forgotPasswordButton);
 }
+function passwordRecoveryForm(){
+  movieSection.innerHTML=`<form id="recoveryForm" novalidate>
+  <label for="clientEmail">Enter Your Email Here:</label><br>
+  <input type="email" id="clientEmail"/><br>
+  <p id="clientEmailError"></p><br>
+  <label for="securityQuestion">Who Is Your Favourite Musician?</label><br>
+  <input id="securityQuestion" type="text"/><br>
+  <p id="securityQuestionError"></p><br>
+  <button type="submit" id="submitDetails">Submit</button>
+  </form>`
+  let clientEmail=document.querySelector("#clientEmail");
+  let clientEmailError=document.querySelector("#clientEmailError");
+  let securityQuestion=document.querySelector("#securityQuestion");
+  let securityQuestionError=document.querySelector("#securityQuestionError");
+  let submitDetails=document.querySelector("#submitDetails");
+  submitDetails.addEventListener("click",(e)=>{
+    e.preventDefault();
+    clientEmailError.textContent="";
+    securityQuestionError.textContent="";
+    let clientEmailNotNull=clientEmail.value!=="";
+    let clientEmailValid=clientEmail.validity.typeMismatch===false;
+    let securityQuestionAnswered=securityQuestion.value!=="";
+    if(clientEmailNotNull===false)clientEmailError.textContent=`Fill in your email so that we can assist you recover your password.`;
+    if(clientEmailValid===false)clientEmailError.textContent=`Ensure your email address is in the correct format.`;
+    if(securityQuestionAnswered===false)securityQuestionError.textContent=`Provide an answer to this question as it will be essential in the recovery of your account later on.`;
+    if(clientEmailError.textContent==""&&securityQuestionError.textContent==""){
+      alert(`Just a moment as we try to verify your email address.`);
+      affectedUserInformation.clientEmailaddress=clientEmail.value;
+      affectedUserInformation.clientSecurityQuestion=securityQuestion.value;
+      clientAccountPresent=registeredUsers.some(registeredUser=>registeredUser.clientEmailaddress===affectedUserInformation.clientEmailaddress);
+      if(clientAccountPresent){
+        alert(`Hello there, we were able to trace an account with the email address ${clientEmail.value}`);
+        alert(`We shall help you reset your password shortly.`);
+       // affectedClients.push(affectedUserInformation);
+      }
+      if(!clientAccountPresent){
+        alert(`Hello there, sorry, we could not trace the account for the provided email address ${clientEmail.value}`);
+        alert(`We recommend you create an account.`);
+        setTimeout(()=>{
+          createSignUpForm();
+        },1000);
+      }
+    }
+  })
+  
+
+}
+forgotPasswordButton.addEventListener("click",(e)=>{
+  forgotPasswordClickCount++;
+  passwordRecoveryForm();
+})
 let allIcons=document.querySelectorAll("i");
-allIcons.forEach((icon,index)=>{
+allIcons.forEach((icon)=>{
   icon.addEventListener("click",(e)=>{
     if(icon.id==="personIcon")createLoginForm();
     if(icon.id==="houseIcon")movieSection.innerHTML=unalteredPage;
