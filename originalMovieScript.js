@@ -22,8 +22,8 @@ let copyOfRegisteredUsers=[];//I've created this array to hold a copy of the use
 copyOfRegisteredUsers=registeredUsers;
 let userAccount={};
 let submittedDetailsAccount={}; //I've created this object with a purpose to store the email and password that a user will submit while logging in,I'll compare it to the original details submitted during sign up to confirm whether its the same user trying to access their account
-//let affectedClients=localStorage.getItem("affectedUsers")?JSON.parse(localStorage.getItem("affectedUsers")):[];//Whenevr a user forgets their email address, I will store the details here, together with the security question they provided when they said that the password has been forgotten
 let affectedUserInformation={};//If it is indeed true that this user's email exists, I will ensure this object has two properties with the values of the affected client's email and the answer to their security question
+let affectedClients=localStorage.getItem("affectedUser")?JSON.parse(localStorage.getItem("affectedUser")):[];
 let digitPattern=/[0-9]/;
 let lowercaseLetterPattern=/[a-z]/;
 let uppercaseLetterPattern=/[A-Z]/;
@@ -71,18 +71,26 @@ function updatePageUI(){
 function createSignUpForm(){
   movieSection.innerHTML=`
   <form id="signUpForm" novalidate>
+  <div class="mb-3">
                     <label for="username">Enter Your Name Here:</label>
                                 <input type="text" id="username" name="username"/>
                     <p id="userNameError"></p>
+                    </div>
+                    <div class="mb-3">
                     <label for="userTelephone">Enter Your Telephone Number Here:</label>
                     <input type="number" id="userTelephone" name="userTelephone"/>
                     <p id="userTelephoneError"></p>
+                    </div>
+                    <div class="mb-3">
                     <label for="userEmailAddress">Enter Your Email Address Here:</label>
                     <input type="email" id="userEmailAddress" name="userEmailAddress">
                     <p id="emailAddressError"></p>
-                   <label for="userpassword">Enter Your Password:</label>
+                    </div>
+                    <div class="mb-3">
+                   <label for="userpassword">Enter Your Password:</label><br>
                    <input type="password" id="userpassword">
                    <p id="userpasswordError"></p>
+                   </div>
                     <button id="submitSignUpDetails" type="submit">Sign Up</button>
         </form>  `;
         let signUpForm=document.querySelector("#signUpForm");
@@ -107,13 +115,18 @@ function createSignUpForm(){
          if(userTelephone.value!==""&&phoneWithZeroOnePattern.test(userTelephone.value)===false&&userTelephone.value!==""&&phoneWithZeroSevenPattern.test(userTelephone.value)===false)userTelephoneError.textContent="Incorrect formart";
          if(userEmailAddress.value==="")emailAddressError.textContent="Kindly provide your email address for contacting.";
          if(userEmailAddress.value!==""&&userEmailAddress.validity.typeMismatch)emailAddressError.textContent="Ensure the email address provided is valid.";
-         if(userpassword.value=="")userpasswordError.textContent="Kindly provide a password for your new account.";
-         if(userpassword.value!==""&&userpassword.value.length<6)userpasswordError.textContent="Your password should not be less than 6 characters long.";
-         if(userpassword.value!==""&&userpassword.value.length>12)userpasswordError.textContent="Your password should not be longer than 12 characters.";
-         if(userpassword.value!==""&&userpassword.value.length<6===false&&userpassword.value.search(digitPattern)<0||userpassword.value.length>12===false&&userpassword.value.length>12===false&&userpassword.value.search(digitPattern)<0)userpasswordError.textContent="Your password should contain a digit.";
-         if(userpassword.value!==""&&userpassword.value.length<6===false&&userpassword.value.search(lowercaseLetterPattern)<0||userpassword.value!==""&&userpassword.value.length>12===false&&userpassword.value.search(lowercaseLetterPattern)<0)userpasswordError.textContent="Your password should contain a lowercase letter.";
-         if(userpassword.value!==""&&userpassword.value.length<6===false&&userpassword.value.search(uppercaseLetterPattern)<0||userpassword.value!==""&&userpassword.value.length>12===false&&userpassword.value.search(uppercaseLetterPattern)<0)userpasswordError.textContent="Your password should contain an uppercase letter.";
-         if(userNameError.textContent!==""||userTelephoneError.textContent!==""||emailAddressError.textContent!==""||userpasswordError.textContent!=="")formIsvalid=false;
+           let passwordNotNull=userpassword.value!=="";
+         let passwordNotLessThanSixCharacters=userpassword.value.length<6===false;
+         let passwordNotGreaterThanTwelveCharacters=userpassword.value.length>12===false;
+         let passwordContainsLowercase=userpassword.value.search(lowercaseLetterPattern)>=0;
+         let passwordContainsUppercase=userpassword.value.search(uppercaseLetterPattern)>=0;
+         let passwordContainsDigit=userpassword.value.search(digitPattern)>=0;
+         if(!passwordNotNull)userpasswordError.textContent="Create a password for your account.";
+         if(passwordNotNull&&!passwordNotLessThanSixCharacters)userpasswordError.textContent="Your password should not be less than 6 characters long.";
+         if(passwordNotNull&&!passwordNotGreaterThanTwelveCharacters)userpasswordError.textContent="Your password should not be longer than 12 characters long.";
+         if(passwordNotNull&&passwordNotLessThanSixCharacters&&!passwordContainsLowercase||passwordNotNull&&passwordNotGreaterThanTwelveCharacters&&!passwordContainsLowercase)userpasswordError.textContent="Your password should contain a lowercase letter.";
+         if(passwordNotNull&&passwordNotLessThanSixCharacters&&!passwordContainsUppercase||passwordNotNull&&passwordNotGreaterThanTwelveCharacters&&!passwordContainsUppercase)userpasswordError.textContent="Your password should contain an uppercase letter.";
+         if(passwordNotNull&&passwordNotLessThanSixCharacters&&!passwordContainsDigit||passwordNotNull&&passwordNotGreaterThanTwelveCharacters&&!passwordContainsDigit)userpasswordError.textContent="Your password should contain a digit.";
          if(userNameError.textContent===""&&userTelephoneError.textContent===""&&emailAddressError.textContent===""&&userpasswordError.textContent===""){
           userAccount.clientPassword=userpassword.value;
           userAccount.clientEmailaddress=userEmailAddress.value;
@@ -146,12 +159,18 @@ function createLoginForm(){
   </label>
   <p id="loginEmailError"></p>
   <label for="loginpassword">Enter Your Password:</label>
-  <input type="password" id="loginpassword" name="loginpassword" autocomplete="current-password">
+  <input type="password" id="loginpassword" name="loginpassword">
   <p id="loginpasswordError"></p>
   <button id="loginButton" type="submit">Login</button>
 </form> `
+let loginEmail=document.querySelector("#loginEmail");
+let loginEmailError=document.querySelector("#loginEmailError");
+let loginpassword=document.querySelector("#loginpassword");
+let loginpasswordError=document.querySelector("#loginpasswordError");
+let loginButton=document.querySelector("#loginButton");
 loginButton.addEventListener("click",(e)=>{
 e.preventDefault();
+loginButtonClickCount++;
 loginEmailError.textContent="";
 loginpasswordError.textContent="";
 let emailNotNull=loginEmail.value!=="";
@@ -182,10 +201,10 @@ submittedDetailsAccount.clientPassword=loginpassword.value;
 }
 if(passwordNotNull&&passwordNotLessThanSixCharacters&&passwordNotGreaterThanTwelveCharacters&&passwordContainsLowercase&&passwordContainsUppercase&&passwordContainsDigit&&loginPasswordAvailable===false)loginpasswordError.textContent="Password not recognised.";
 if(emailNotNull&&emailValid&&loginEmailAvailable===false)loginEmailError.textContent="Email not recognised.";   
-if(emailNotNull&&emailValid&&loginEmailAvailable&&passwordContainsDigit&&passwordContainsLowercase&&passwordContainsUppercase&&passwordNotGreaterThanTwelveCharacters&&passwordNotLessThanSixCharacters&&passwordNotNull&&loginPasswordAvailable===false)alert(`HI, your email adress ${loginEmail.value} is recognised, however, the password ${loginpassword.value} does not seem to exist for this account.`);
+if(emailNotNull&&emailValid&&loginEmailAvailable&&passwordContainsDigit&&passwordContainsLowercase&&passwordContainsUppercase&&passwordNotGreaterThanTwelveCharacters&&passwordNotLessThanSixCharacters&&passwordNotNull&&loginPasswordAvailable===false)alert(`Hi, your email address ${loginEmail.value} is recognised, however, the password ${loginpassword.value} does not seem to exist for this account.`);
 if(passwordNotNull&&passwordContainsDigit&&passwordContainsLowercase&&passwordContainsUppercase&&passwordNotGreaterThanTwelveCharacters&&passwordNotLessThanSixCharacters&&loginPasswordAvailable&&emailNotNull&&emailValid&&!loginEmailAvailable){
   alert(`Hi there, the password you have submitted is recognised by our system, however, we can't seem to trace the email address you've provided.`);
-  alert(`KIndly create an account to access our services.`);
+  alert(`Kindly create an account to access our services.`);
   createSignUpForm();
 }
 clientAccountPresent=registeredUsers.some((certainUser)=>{
@@ -200,6 +219,18 @@ if(passwordContainsDigit&&passwordContainsLowercase&&passwordContainsUppercase&&
 if(clientAccountPresent)alert(`Great, all login details are correct, welcome.`);
 })
 movieSection.append(forgotPasswordButton);
+forgotPasswordButton.addEventListener("click",(e)=>{
+  forgotPasswordClickCount++;
+  if(loginButtonClickCount<1)alert("At least attempt logging into the account for us to help you retrieve your password");
+  if(loginButtonClickCount>=1&&loginEmailAvailable&&loginpassword.value===""||loginButtonClickCount>=1&&loginEmailAvailable&&loginpassword.value!==""&&loginpasswordError.textContent=="Password not recognised."){
+    alert("Hi, we shall help you recover your account");
+    passwordRecoveryForm();
+  }
+})
+}
+function setFinalSecurityQuestion(){
+let uniqueAffectedUsers=Array.from(affectedClients.reduce((map,user)=>map.set(user.clientEmailaddress,user),new Map()).values());
+return uniqueAffectedUsers;
 }
 function passwordRecoveryForm(){
   movieSection.innerHTML=`<form id="recoveryForm" novalidate>
@@ -216,8 +247,10 @@ function passwordRecoveryForm(){
   let securityQuestion=document.querySelector("#securityQuestion");
   let securityQuestionError=document.querySelector("#securityQuestionError");
   let submitDetails=document.querySelector("#submitDetails");
+  let submitDetailsClickCount=0; //I want to establish how many times the submit button is clicked while a user submits a password reset request, it should only push the details of the affected user once to local storage, so as to avoid redundancy in the local storage
   submitDetails.addEventListener("click",(e)=>{
     e.preventDefault();
+    submitDetailsClickCount++;
     clientEmailError.textContent="";
     securityQuestionError.textContent="";
     let clientEmailNotNull=clientEmail.value!=="";
@@ -231,10 +264,13 @@ function passwordRecoveryForm(){
       affectedUserInformation.clientEmailaddress=clientEmail.value;
       affectedUserInformation.clientSecurityQuestion=securityQuestion.value;
       clientAccountPresent=registeredUsers.some(registeredUser=>registeredUser.clientEmailaddress===affectedUserInformation.clientEmailaddress);
-      if(clientAccountPresent){
+      if(clientAccountPresent&&submitDetailsClickCount===1){
         alert(`Hello there, we were able to trace an account with the email address ${clientEmail.value}`);
         alert(`We shall help you reset your password shortly.`);
-       // affectedClients.push(affectedUserInformation);
+        affectedClients.push(affectedUserInformation);
+        affectedClients=setFinalSecurityQuestion();
+        localStorage.setItem("affectedUser",JSON.stringify(affectedClients));
+        verifyClientIdentity();
       }
       if(!clientAccountPresent){
         alert(`Hello there, sorry, we could not trace the account for the provided email address ${clientEmail.value}`);
@@ -244,18 +280,102 @@ function passwordRecoveryForm(){
         },1000);
       }
     }
-  })
-  
-
+  }) 
 }
-forgotPasswordButton.addEventListener("click",(e)=>{
-  forgotPasswordClickCount++;
-  passwordRecoveryForm();
+let identifiedClient={};
+let identificationQuestionPassed;
+function verifyClientIdentity(){
+  movieSection.innerHTML=`
+  <h1>Hi,Fill In Your Details Below To Reset Your Password</h1>
+  <form id="verificationForm" novalidate>
+  <label for="mailAddress">Your Email Address:</label><br>
+  <input type="email" id="mailAddress" name="mailAddress"><br>
+  <p id="mailAddressError"></p>
+  <label for="securityResponse">Whom Did You Pick As Your Favourite Musician?</label><br>
+  <input type="text" name="securityResponse" id="securityResponse"/><br>
+  <p id="responseError"></p>
+  <button id="submitVerification" type="submit">Submit Data</button>
+  </form>`
+  let mailAddress=document.querySelector("#mailAddress");
+  let mailAddressError=document.querySelector("#mailAddressError");
+  let securityResponse=document.querySelector("#securityResponse");
+  let responseError=document.querySelector("#responseError");
+  let submitVerification=document.querySelector("#submitVerification");
+  submitVerification.addEventListener("click",(e)=>{
+    e.preventDefault();
+    let mailAddressValid=mailAddress.validity.typeMismatch===false;
+    mailAddressError.textContent="";
+    responseError.textContent="";
+    if(mailAddress.value=="")mailAddressError.textContent="You have to fill in your email to get assistance.";
+    if(mailAddressValid===false)mailAddressError.textContent="Ensure the email address is in the correct format.";
+    if(securityResponse.value=="")responseError.textContent="You may not be able to recover your account if this question is unanswered.";
+    if(mailAddressError.textContent==""&&responseError.textContent==""){
+      identifiedClient.email=mailAddress.value;
+      identifiedClient.response=securityResponse.value;
+      identificationQuestionPassed=affectedClients.some((client)=>client.clientEmailaddress==identifiedClient.email&&client.clientSecurityQuestion==identifiedClient.response);
+      if(identificationQuestionPassed){
+        alert(`Great, the details you provided are correct, you'll be presented with a new form to reset your password.`);
+        resetPassword();
+      }
+    }
+  })
+};
+function savefinalPassword(){//The essence of this function is to help in an instance where, once the user will have set a new password, the samer user doesn't keep appearing with different passwords at different indices of the registeredUsers array
+let uniqueUsers=Array.from(registeredUsers.reduce((map,user)=> map.set(user.clientEmailaddress,user),new Map()).values());
+return uniqueUsers;
+}
+function resetPassword(){
+  movieSection.innerHTML=`<form id="passwordRecover" novalidate>
+  <h1>Reset Your Password Here:</h1>
+  <label for="useremail">Enter Your Email Here:</label><br>
+  <input type="email" id="useremail" name="useremail"><br>
+  <p id="useremailError"></p>
+  <label for="newpassword">Enter Your New Password Here:</label><br>
+  <input type="password" id="newpassword" name="newpassword"><br>
+  <p id="newpasswordError"></p>
+  <button id="savePassword" type="submit">Save Password</button>
+  </form>`
+  let useremail=document.querySelector("#useremail");
+  let useremailError=document.querySelector("#useremailError");
+  let newpassword=document.querySelector("#newpassword");
+  let newpasswordError=document.querySelector("#newpasswordError");
+  let savePassword=document.querySelector("#savePassword");
+  savePassword.addEventListener("click",(e)=>{
+    e.preventDefault();
+    useremailError.textContent="";
+    newpasswordError.textContent="";
+    let mailAddressValid=useremail.validity.typeMismatch===false;
+    let emailNotNull=useremail.value!=="";
+    let passwordNotNull=newpassword.value!=="";
+let passwordNotLessThanSixCharacters=newpassword.value.length<6===false;
+let passwordNotGreaterThanTwelveCharacters=newpassword.value.length>12===false;
+let passwordContainsLowercase=newpassword.value.search(lowercaseLetterPattern)>=0;
+let passwordContainsUppercase=newpassword.value.search(uppercaseLetterPattern)>=0;
+let passwordContainsDigit=newpassword.value.search(digitPattern)>=0;
+if(!emailNotNull)useremailError.textContent="Provide your email address for easier verification.";
+if(emailNotNull&&!mailAddressValid)useremailError.textContent="Ensure the provided email address is valid.";
+if(!passwordNotNull)newpasswordError.textContent="You have to enter a new password to replace the lost one.";
+if(passwordNotNull&&!passwordNotLessThanSixCharacters)newpasswordError.textContent="Your password should not be less than 6 characters long.";
+if(passwordNotNull&&!passwordNotGreaterThanTwelveCharacters)newpasswordError.textContent="Your password should not be longer than 12 characters long.";
+if(passwordNotNull&&passwordNotLessThanSixCharacters&&!passwordContainsLowercase||passwordNotNull&&passwordNotGreaterThanTwelveCharacters&&!passwordContainsLowercase)newpasswordError.textContent="Your password should contain a lowercase letter.";
+if(passwordNotNull&&passwordNotLessThanSixCharacters&&!passwordContainsUppercase||passwordNotNull&&passwordNotGreaterThanTwelveCharacters&&!passwordContainsUppercase)newpasswordError.textContent="Your password should contain an uppercase letter.";
+if(passwordNotNull&&passwordNotLessThanSixCharacters&&!passwordContainsDigit||passwordNotNull&&passwordNotGreaterThanTwelveCharacters&&!passwordContainsDigit)newpasswordError.textContent="Your password should contain a digit.";
+ if(useremailError.textContent==""&&newpasswordError.textContent==""){
+alert(`Great,saving your new password...`);
+userAccount.clientPassword=newpassword.value;
+userAccount.clientEmailaddress=useremail.value;
+registeredUsers.push(userAccount);
+registeredUsers=savefinalPassword();
+localStorage.setItem("accountUsers",JSON.stringify(registeredUsers));
+alert(`All good, your new password has been saved. You can head over to the login page in a few.`);
+createLoginForm();
+ }
 })
+}
 let allIcons=document.querySelectorAll("i");
 allIcons.forEach((icon)=>{
   icon.addEventListener("click",(e)=>{
-    if(icon.id==="personIcon")createLoginForm();
+    if(icon.id==="personIcon")createSignUpForm();
     if(icon.id==="houseIcon")movieSection.innerHTML=unalteredPage;
     if(icon.id==="cartIcon")movieSection.innerHTML=`
     <table id="moviesTable">
@@ -266,7 +386,6 @@ allIcons.forEach((icon)=>{
         <th>MOVIE PRICE (Ksh.)</th>
     </tr>
     </thead>
-
 </table>`
   })
 })
@@ -1447,3 +1566,4 @@ allMovies.forEach((movie,movieIndex)=>{
     let path=window.location.pathname;
     });
 console.log(registeredUsers);
+console.log(affectedClients);
